@@ -1,3 +1,7 @@
+// ============================================================
+// TASK 1 — THEME TOGGLE (Dark / Light Mode)
+// ============================================================
+
 const COLOR_THEMES = [
   { id: 'violet',  primary: '#6366f1', secondary: '#8b5cf6', accent: '#a855f7' },
   { id: 'coral',   primary: '#ec4899', secondary: '#f97316', accent: '#fb923c' },
@@ -40,6 +44,10 @@ function initializeTheme() {
     toggleButton?.setAttribute('aria-pressed', 'true');
   }
 }
+
+// ============================================================
+// TASK 2 — NAVBAR (Scroll Spy + Smooth Scroll + Mobile Menu)
+// ============================================================
 
 function initScrollSpy() {
   const header = document.getElementById('header');
@@ -158,6 +166,10 @@ function initMobileMenu() {
     }
   });
 }
+
+// ============================================================
+// TASK 3 — SETTINGS SIDEBAR (Font + Color Themes)
+// ============================================================
 
 function populateColorGrid() {
   const themeColorsGrid = document.getElementById('theme-colors-grid');
@@ -346,6 +358,10 @@ function initSettingsEvents() {
   });
 }
 
+// ============================================================
+// TASK 4 — PORTFOLIO FILTER
+// ============================================================
+
 function initPortfolioFilter() {
   const filterContainer = document.getElementById('portfolio-filters');
   const portfolioItems = document.querySelectorAll('.portfolio-item');
@@ -411,6 +427,10 @@ function initPortfolioFilter() {
     });
   });
 }
+
+// ============================================================
+// TASK 5 — TESTIMONIALS CAROUSEL
+// ============================================================
 
 function initTestimonialsCarousel() {
   const carousel = document.getElementById('testimonials-carousel');
@@ -548,6 +568,43 @@ function initTestimonialsCarousel() {
   startAutoPlay();
 }
 
+// ============================================================
+// TASK 6 — SCROLL TO TOP BUTTON
+// ============================================================
+
+function initScrollToTop() {
+  const scrollBtn = document.getElementById('scroll-to-top');
+  const heroSection = document.getElementById('hero-section');
+
+  if (!scrollBtn) return;
+
+  function updateScrollButton() {
+    const scrollY = window.scrollY;
+    const heroHeight = heroSection ? heroSection.offsetHeight : window.innerHeight;
+    const isPastHero = scrollY > heroHeight;
+
+    if (isPastHero) {
+      scrollBtn.classList.remove('opacity-0', 'invisible');
+    } else {
+      scrollBtn.classList.add('opacity-0', 'invisible');
+    }
+  }
+
+  scrollBtn.addEventListener('click', () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  });
+
+  window.addEventListener('scroll', updateScrollButton);
+  updateScrollButton();
+}
+
+// ============================================================
+// INITIALIZATION
+// ============================================================
+
 document.addEventListener('DOMContentLoaded', () => {
   const toggleButton = document.getElementById('theme-toggle-button');
   if (toggleButton) {
@@ -562,4 +619,5 @@ document.addEventListener('DOMContentLoaded', () => {
   initSettingsEvents();
   initPortfolioFilter();
   initTestimonialsCarousel();
+  initScrollToTop();
 });
