@@ -411,6 +411,143 @@ function initPortfolioFilter() {
     });
   });
 }
+
+function initTestimonialsCarousel() {
+  const carousel = document.getElementById('testimonials-carousel');
+  const cards = document.querySelectorAll('.testimonial-card');
+  const nextBtn = document.getElementById('next-testimonial');
+  const prevBtn = document.getElementById('prev-testimonial');
+  const indicatorsContainer = document.querySelector('#testimonials [role="tablist"]');
+  const carouselWrapper = carousel?.closest('.overflow-hidden');
+
+  if (!carousel || cards.length === 0 || !carouselWrapper) return;
+
+  let currentIndex = 0;
+  let autoPlayInterval = null;
+  const AUTO_PLAY_DELAY = 5000;
+
+  function getCardsPerView() {
+    const width = window.innerWidth;
+    if (width >= 1024) return 3;
+    if (width >= 640) return 2;
+    return 1;
+  }
+
+  function getMaxIndex() {
+    return Math.max(0, cards.length - getCardsPerView());
+  }
+
+  function getSlideWidth() {
+    return carouselWrapper.clientWidth / getCardsPerView();
+  }
+
+  function updateCarousel() {
+    const maxIndex = getMaxIndex();
+    currentIndex = Math.max(0, Math.min(currentIndex, maxIndex));
+
+    const slideWidth = getSlideWidth();
+    carousel.style.transform = `translateX(${currentIndex * slideWidth}px)`;
+
+    updateIndicators();
+  }
+
+  function updateIndicators() {
+    if (!indicatorsContainer) return;
+    indicatorsContainer.querySelectorAll('.carousel-indicator').forEach((dot, i) => {
+      const isActive = i === currentIndex;
+      dot.classList.toggle('bg-accent', isActive);
+      dot.classList.toggle('bg-slate-400', !isActive);
+      dot.classList.toggle('dark:bg-slate-600', !isActive);
+      dot.setAttribute('aria-selected', String(isActive));
+    });
+  }
+
+  function generateIndicators() {
+    if (!indicatorsContainer) return;
+    const maxIndex = getMaxIndex();
+    indicatorsContainer.innerHTML = '';
+
+    for (let i = 0; i <= maxIndex; i++) {
+      const dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = `carousel-indicator w-3 h-3 rounded-full transition-all duration-300 hover:scale-125 cursor-pointer ${i === currentIndex ? 'bg-accent' : 'bg-slate-400 dark:bg-slate-600'}`;
+      dot.dataset.index = i;
+      dot.role = 'tab';
+      dot.setAttribute('aria-label', `التوصية ${i + 1}`);
+      dot.setAttribute('aria-selected', String(i === currentIndex));
+
+      dot.addEventListener('click', () => {
+        currentIndex = i;
+        updateCarousel();
+        resetAutoPlay();
+      });
+
+      indicatorsContainer.appendChild(dot);
+    }
+  }
+
+  function nextSlide() {
+    const maxIndex = getMaxIndex();
+    currentIndex = currentIndex >= maxIndex ? 0 : currentIndex + 1;
+    updateCarousel();
+  }
+
+  function prevSlide() {
+    const maxIndex = getMaxIndex();
+    currentIndex = currentIndex <= 0 ? maxIndex : currentIndex - 1;
+    updateCarousel();
+  }
+
+  function startAutoPlay() {
+    stopAutoPlay();
+    autoPlayInterval = setInterval(nextSlide, AUTO_PLAY_DELAY);
+  }
+
+  function stopAutoPlay() {
+    if (autoPlayInterval) {
+      clearInterval(autoPlayInterval);
+      autoPlayInterval = null;
+    }
+  }
+
+  function resetAutoPlay() {
+    stopAutoPlay();
+    startAutoPlay();
+  }
+
+  if (nextBtn) {
+    nextBtn.addEventListener('click', () => {
+      nextSlide();
+      resetAutoPlay();
+    });
+  }
+
+  if (prevBtn) {
+    prevBtn.addEventListener('click', () => {
+      prevSlide();
+      resetAutoPlay();
+    });
+  }
+
+  if (carouselWrapper) {
+    carouselWrapper.addEventListener('mouseenter', stopAutoPlay);
+    carouselWrapper.addEventListener('mouseleave', startAutoPlay);
+  }
+
+  let resizeTimeout;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+      generateIndicators();
+      updateCarousel();
+    }, 150);
+  });
+
+  generateIndicators();
+  updateCarousel();
+  startAutoPlay();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const toggleButton = document.getElementById('theme-toggle-button');
   if (toggleButton) {
@@ -424,4 +561,5 @@ document.addEventListener('DOMContentLoaded', () => {
   initializeSettings();
   initSettingsEvents();
   initPortfolioFilter();
+  initTestimonialsCarousel();
 });
