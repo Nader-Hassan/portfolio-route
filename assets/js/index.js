@@ -346,6 +346,71 @@ function initSettingsEvents() {
   });
 }
 
+function initPortfolioFilter() {
+  const filterContainer = document.getElementById('portfolio-filters');
+  const portfolioItems = document.querySelectorAll('.portfolio-item');
+
+  if (!filterContainer || portfolioItems.length === 0) return;
+
+  const ACTIVE_CLASSES = [
+    'bg-linear-to-r', 'from-primary', 'to-secondary', 'text-white',
+    'hover:shadow-lg', 'hover:shadow-primary/50'
+  ];
+
+  const INACTIVE_CLASSES = [
+    'bg-white', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-300',
+    'border', 'border-slate-300', 'dark:border-slate-700'
+  ];
+
+  portfolioItems.forEach(item => {
+    item.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+  });
+
+  function setButtonState(button, isActive) {
+    button.classList.toggle('active', isActive);
+    button.setAttribute('aria-pressed', String(isActive));
+
+    if (isActive) {
+      button.classList.remove(...INACTIVE_CLASSES);
+      button.classList.add(...ACTIVE_CLASSES);
+    } else {
+      button.classList.remove(...ACTIVE_CLASSES);
+      button.classList.add(...INACTIVE_CLASSES);
+    }
+  }
+
+  filterContainer.addEventListener('click', (event) => {
+    const button = event.target.closest('.portfolio-filter');
+    if (!button || button.classList.contains('active')) return;
+
+    const filterValue = button.dataset.filter;
+    filterContainer.querySelectorAll('.portfolio-filter').forEach(btn => {
+      setButtonState(btn, btn === button);
+    });
+
+    portfolioItems.forEach(item => {
+      const category = item.dataset.category;
+      const shouldShow = filterValue === 'all' || category === filterValue;
+      const isHidden = item.classList.contains('hidden');
+
+      if (shouldShow && isHidden) {
+        item.style.opacity = '0';
+        item.style.transform = 'scale(0.95)';
+        item.classList.remove('hidden');
+        void item.offsetWidth;
+        item.style.opacity = '1';
+        item.style.transform = 'scale(1)';
+      } else if (!shouldShow && !isHidden) {
+        item.style.opacity = '0';
+        item.style.transform = 'scale(0.95)';
+
+        setTimeout(() => {
+          item.classList.add('hidden');
+        }, 300);
+      }
+    });
+  });
+}
 document.addEventListener('DOMContentLoaded', () => {
   const toggleButton = document.getElementById('theme-toggle-button');
   if (toggleButton) {
@@ -358,4 +423,5 @@ document.addEventListener('DOMContentLoaded', () => {
   initMobileMenu();
   initializeSettings();
   initSettingsEvents();
+  initPortfolioFilter();
 });
